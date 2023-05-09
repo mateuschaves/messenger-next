@@ -1,17 +1,29 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import axios from "axios";
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 import { BsGithub, BsGoogle } from "react-icons/bs";
 import Input from "@/app/components/Input/Input";
 import Button from "@/app/components/Button";
 import AuthSocialButton from "./AuthSocialButton";
+import toast from "react-hot-toast";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type Variant = "LOGIN" | "REGISTER";
 
 const AuthForm: React.FC = () => {
+  const session = useSession();
+  const router = useRouter();
   const [variant, setVariant] = useState<Variant>("LOGIN");
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (session?.status === "authenticated") {
+      router.push("/users");
+    }
+  }, [session?.status, router]);
 
   const toggleVariant = useCallback(() => {
     setVariant(variant === "LOGIN" ? "REGISTER" : "LOGIN");
@@ -31,21 +43,49 @@ const AuthForm: React.FC = () => {
 
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     setIsLoading(true);
-    console.log("data: ", data);
     if (variant === "LOGIN") {
-      // Axios.post('/api/auth/login', data)
+      signIn("credentials", {
+        ...data,
+        redirect: false,
+      })
+        .then((callback) => {
+          if (callback?.error) {
+            toast.error("Something went wrong!");
+          }
+
+          if (callback?.ok && !callback?.error) {
+            toast.success("Logged in successfully!");
+            router.push("/users");
+          }
+        })
+        .finally(() => setIsLoading(false));
     }
 
     if (variant === "REGISTER") {
-      // Axios.post('/api/auth/register', data)
+      axios
+        .post("/api/register", data)
+        .then((callback) => signIn("credentials", { ...data, redirect: false }))
+        .catch((error) => toast.error("Something went wrong!"))
+        .finally(() => setIsLoading(false));
     }
-    setIsLoading(false);
   };
 
   const socialAction = (action: string) => {
     setIsLoading(true);
 
-    // NextAuth Social Login
+    signIn(action, {
+      redirect: false,
+    })
+      .then((callback) => {
+        if (callback?.error) {
+          toast.error("Something went wrong!");
+        }
+
+        if (callback?.ok && !callback?.error) {
+          toast.success("Logged in successfully!");
+        }
+      })
+      .finally(() => setIsLoading(false));
   };
 
   return (
@@ -53,15 +93,14 @@ const AuthForm: React.FC = () => {
       <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           {variant === "REGISTER" && (
-            <Input id="name" label="Name" register={register} errors={errors} />
+            <Input
+              id="name"
+              label="Name"
+              register={register}
+              errors={errors}
+              disabled={isLoading}
+            />
           )}
-          <Input
-            id="email"
-            label="E-mail"
-            register={register}
-            errors={errors}
-            disabled={isLoading}
-          />
           <Input
             id="email"
             label="E-mail address"
@@ -75,6 +114,7 @@ const AuthForm: React.FC = () => {
             register={register}
             errors={errors}
             disabled={isLoading}
+            type="password"
           />
 
           <div>
