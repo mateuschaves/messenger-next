@@ -60,18 +60,21 @@ const AuthForm: React.FC = () => {
             label="E-mail"
             register={register}
             errors={errors}
+            disabled={isLoading}
           />
           <Input
             id="email"
             label="E-mail address"
             register={register}
             errors={errors}
+            disabled={isLoading}
           />
           <Input
             id="password"
             label="Password"
             register={register}
             errors={errors}
+            disabled={isLoading}
           />
 
           <div>
