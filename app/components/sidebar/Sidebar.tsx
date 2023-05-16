@@ -1,6 +1,6 @@
 import getCurrentUser from '@/app/actions/getCurrentUser';
 
-import DesktopSidebar from './DesktopSidebar';
+// import DesktopSidebar from './DesktopSidebar';
 import MobileFooter from './MobileFooter';
 
 async function Sidebar({ children }: {
@@ -10,7 +10,7 @@ async function Sidebar({ children }: {
 
   return (
     <div className="h-full">
-      <DesktopSidebar currentUser={currentUser!} />
+      {/* <DesktopSidebar currentUser={currentUser!} /> */}
       <MobileFooter />
       <main className="lg:pl-20 h-full">
         {children}
