@@ -21,7 +21,7 @@ Você pode testar utilizando esse link: [https://messenger-next-seven.vercel.app
 
 ## Uso
 
-Para iniciar o servidor do expo, utilize o seguinte comando:
+Para iniciar o projeto, utilize o seguinte comando:
 
 ```bash
     npm run dev
